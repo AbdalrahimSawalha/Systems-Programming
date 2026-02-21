@@ -1,0 +1,26 @@
+1000  FIRST      START     1000              . program starts at address 1000
+1000             LDX       ZERO              . initialize index register X to 0
+1003  RLOOP      TD        INDEV             . test if input device ready
+1006             JEQ       RLOOP             . if not ready, keep waiting
+1009             RD        INDEV             . read a byte from input device into A
+100C             COMP      ZERO              . check if byte read is 0 (end of record)
+100F             JEQ       EXIT              . if it is 0, exit read loop
+1012             STCH      BUFFER,X          . store the character from A into buffer
+1015             TIX       MAXLEN            . increment X and compare with max length
+1018             JLT       RLOOP             . if X < MAXLEN, continue reading
+101B  EXIT       STX       LENGTH            . store number of chars read in LENGTH
+101E             LDX       ZERO              . reset index register for writing
+1021  WLOOP      TD        OUTDEV            . test if output device ready
+1024             JEQ       WLOOP             . if not, wait
+1027             LDCH      BUFFER,X          . load character from buffer into A
+102A             WD        OUTDEV            . write character from A to output device
+102D             TIX       LENGTH            . increment X and compare with LENGTH
+1030             JLT       WLOOP             . if X < LENGTH, keep writing
+1033             RSUB                        . return (end of program)
+1036  INDEV      BYTE      X'F1'             . device code for input
+1037  OUTDEV     BYTE      X'06'             . device code for output
+1038  ZERO       WORD      0                 . constant zero
+103B  MAXLEN     WORD      4096              . maximum record length
+103E  LENGTH     RESW      1                 . space to store record length
+1041  BUFFER     RESB      4096              . buffer to hold input record
+2041             END       FIRST             . end of program, entry at FIRST
